@@ -18,13 +18,17 @@ day26-mcp/
 │   ├── weather_server.py
 │   └── weather_client.py
 │
-└── 03-production/           ← Bước 3: Auth, Tool Registry, Versioning
-    ├── README.md
-    ├── auth_server.py
-    ├── auth_client.py
-    ├── registry.json
-    ├── registry_client.py
-    └── versioned_server.py
+├── 03-production/           ← Bước 3: Auth, Tool Registry, Versioning
+│   ├── README.md
+│   ├── auth_server.py
+│   ├── auth_client.py
+│   ├── registry.json
+│   ├── registry_client.py
+│   └── versioned_server.py
+│
+└── 04-lab/                  ← Bài nộp tích hợp hoàn chỉnh
+    ├── mcp-server/          ← Weather MCP Server thật + auth + versioning
+    └── mcp-client/          ← ADK Agent + client kiểm thử tự động
 ```
 
 ## Quick start
@@ -47,6 +51,9 @@ python auth_client.py              # terminal 2
 
 # Production — Tool Registry
 cd 03-production && python registry_client.py
+
+# Bài nộp tích hợp (xem hướng dẫn đầy đủ trong 04-lab/README.md)
+cd 04-lab/mcp-server && uv run python weather.py
 ```
 
 ---

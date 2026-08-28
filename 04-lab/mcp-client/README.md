@@ -27,10 +27,13 @@ AI agent built with **Google Agent Development Kit (ADK)** that uses tools from 
 ## Features
 
 - **Remote MCP Tools**: Connects to MCP server via Streamable HTTP
-- **3 Weather Tools**:
-  - `get_current_weather(city)` - Real-time weather conditions
+- **4 Weather Tools**:
+  - `get_current_weather(city)` - Backward-compatible v1 response
+  - `get_current_weather_v2(city, units)` - Versioned JSON response
   - `get_forecast(city, days)` - Weather forecast up to 3 days
   - `health_check()` - Server health verification
+- **Bearer authentication**: Every MCP request includes `MCP_AUTH_TOKEN`
+- **Version discovery**: `secure_weather_client.py` reads `server://info`
 - **Web Interface**: UI via ADK web
 - **Streaming Responses**: Real-time AI responses
 
@@ -41,6 +44,7 @@ AI agent built with **Google Agent Development Kit (ADK)** that uses tools from 
 ```bash
 cd ../mcp-server
 export WEATHERAPI_KEY="your_weatherapi_key"
+export MCP_AUTH_TOKEN="choose_a_private_token"
 uv run python weather.py
 ```
 
@@ -49,9 +53,9 @@ uv run python weather.py
 ```bash
 cd mcp-client
 
-# Create .env file with your Google API key
+# Create .env file with your Google API key and the same MCP bearer token
 # Get free key from: https://aistudio.google.com/apikey
-echo "GOOGLE_API_KEY=your_google_api_key_here" > .env
+printf 'GOOGLE_API_KEY=your_google_api_key_here\nMCP_AUTH_TOKEN=choose_a_private_token\n' > .env
 ```
 
 ### 3. Install Dependencies
@@ -94,10 +98,12 @@ mcp-client/
 In `weather_agent/agent.py`:
 
 ```python
-MCP_SERVER_URL = "http://localhost:8085/mcp"
+MCP_SERVER_URL = os.getenv("MCP_SERVER_URL", "http://localhost:8085/mcp")
+MCP_AUTH_TOKEN = os.getenv("MCP_AUTH_TOKEN", "dev-token-abc123")
 
 connection_params = StreamableHTTPConnectionParams(
     url=MCP_SERVER_URL,
+    headers={"Authorization": f"Bearer {MCP_AUTH_TOKEN}"},
     timeout=30.0,
 )
 
@@ -133,6 +139,8 @@ Fix the connection and restart ADK web.
 Create `.env` file:
 ```bash
 GOOGLE_API_KEY=your_gemini_api_key
+MCP_AUTH_TOKEN=the_same_token_used_by_the_server
+MCP_SERVER_URL=http://localhost:8085/mcp
 ```
 
 ## Resources
