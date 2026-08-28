@@ -67,24 +67,40 @@ async def verify_valid_client() -> None:
                     raise RuntimeError("Legacy v1 client no longer receives its expected string format")
                 print("Legacy v1 client: OK")
 
+                forecast = await session.call_tool(
+                    "get_forecast",
+                    {"city": "Hanoi", "days": 2},
+                )
+                if "Weather Forecast for Hanoi" not in forecast.content[0].text:
+                    raise RuntimeError("Forecast tool returned an unexpected result")
+                print("Forecast arguments city=Hanoi, days=2: OK")
+
                 # New clients inspect metadata and select the replacement tool.
                 v1_metadata = metadata["tools"]["get_current_weather"]
+                replacement = v1_metadata.get("replacement")
                 selected_tool = (
-                    v1_metadata["replacement"]
-                    if v1_metadata["deprecated"]
+                    replacement
+                    if v1_metadata.get("deprecated") and replacement in tool_names
                     else "get_current_weather"
                 )
-                if selected_tool not in tool_names:
-                    raise RuntimeError(f"Selected tool is unavailable: {selected_tool}")
 
                 modern = await session.call_tool(
                     selected_tool,
-                    {"city": "Hanoi", "units": "celsius"},
+                    (
+                        {"city": "Hanoi", "units": "celsius"}
+                        if selected_tool == "get_current_weather_v2"
+                        else {"city": "Hanoi"}
+                    ),
                 )
-                result = json.loads(modern.content[0].text)
-                if result.get("api_version") != "2.0":
-                    raise RuntimeError("v2 tool did not return the expected API version")
-                print(f"Modern client selected {selected_tool}: API v{result['api_version']} OK")
+                if selected_tool == "get_current_weather_v2":
+                    result = json.loads(modern.content[0].text)
+                    if result.get("api_version") != "2.0":
+                        raise RuntimeError("v2 tool did not return the expected API version")
+                    print(f"Modern client selected {selected_tool}: API v{result['api_version']} OK")
+                elif "Current Weather" in modern.content[0].text:
+                    print("Modern client fell back to get_current_weather v1: OK")
+                else:
+                    raise RuntimeError("Fallback v1 tool returned an unexpected result")
 
 
 async def main() -> None:

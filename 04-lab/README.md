@@ -126,6 +126,8 @@ All secure Weather MCP checks passed.
 Google ADK cũng đã kết nối bằng Bearer token, gọi
 `get_current_weather_v2(city="Hanoi", units="celsius")` và trả về dữ liệu thật.
 
+Checklist chi tiết theo đúng mục kiểm tra của bài: [CHECKLIST.md](CHECKLIST.md).
+
 ## ADK làm gì trong Lab này?
 
 ADK (Agent Development Kit) đóng vai trò **MCP Client** 
