@@ -33,7 +33,7 @@ ADK (Agent Development Kit) đóng vai trò **MCP Client**
 │     → nhận về: get_current_weather, get_forecast, health_check  │
 │                                                                 │
 │  3. TRUYỀN tools cho LLM (Gemini)                               │
-│     Agent(model="gemini-2.5-flash", tools=[weather_tools])      │
+│     Agent(model="gemini-3.6-flash", tools=[weather_tools])      │
 │     → Gemini biết nó có thể gọi 3 tools trên                    │
 │                                                                 │
 │  4. ĐIỀU PHỐI vòng lặp Function Calling                         │
