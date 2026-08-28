@@ -99,7 +99,7 @@ In `weather_agent/agent.py`:
 
 ```python
 MCP_SERVER_URL = os.getenv("MCP_SERVER_URL", "http://localhost:8085/mcp")
-MCP_AUTH_TOKEN = os.getenv("MCP_AUTH_TOKEN", "dev-token-abc123")
+MCP_AUTH_TOKEN = os.getenv("MCP_AUTH_TOKEN")
 
 connection_params = StreamableHTTPConnectionParams(
     url=MCP_SERVER_URL,
@@ -129,10 +129,11 @@ root_agent = Agent(
 3. **Timeout errors**: Server not started
    - Start the MCP server first, then the ADK client
 
-### Fallback Mode
+### MCP connection failure
 
-If MCP connection fails, the agent runs in fallback mode without tools.
-Fix the connection and restart ADK web.
+The agent intentionally fails instead of silently starting without tools. Check
+that the server is running and that both processes loaded the same
+`MCP_AUTH_TOKEN`, then restart ADK Web.
 
 ## Environment Variables
 

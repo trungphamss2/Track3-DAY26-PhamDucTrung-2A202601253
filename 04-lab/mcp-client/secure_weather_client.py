@@ -11,7 +11,9 @@ from mcp import ClientSession
 from mcp.client.streamable_http import streamable_http_client
 
 SERVER_URL = os.getenv("MCP_SERVER_URL", "http://localhost:8085/mcp")
-VALID_TOKEN = os.getenv("MCP_AUTH_TOKEN", "dev-token-abc123")
+VALID_TOKEN = os.getenv("MCP_AUTH_TOKEN")
+if not VALID_TOKEN:
+    raise RuntimeError("MCP_AUTH_TOKEN is required. Load the root .env with activate.sh.")
 
 
 async def auth_status(token: str | None) -> int:

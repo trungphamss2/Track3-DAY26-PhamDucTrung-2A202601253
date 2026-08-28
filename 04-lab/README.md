@@ -2,6 +2,32 @@
 
 A weather agent built with Google ADK that connects to an MCP server via Streamable HTTP transport.
 
+## Bước 1 — Use case thực tế
+
+**Công việc hiện tại:** tra cứu thời tiết hiện tại và dự báo trước khi đi học,
+đi làm hoặc lên lịch di chuyển.
+
+**Tôi đang làm thủ công như thế nào:** mở website/app thời tiết, nhập từng thành
+phố, đọc nhiệt độ, độ ẩm, gió và dự báo rồi tự tổng hợp.
+
+**Input:** tên thành phố; số ngày dự báo; đơn vị nhiệt độ nếu dùng API v2.
+
+**Output:** dữ liệu thời tiết thật lấy từ WeatherAPI.com, gồm địa điểm, nhiệt độ,
+tình trạng, độ ẩm, gió và dự báo 1–3 ngày.
+
+## Bước 2 — Tools đã xây
+
+Hai tác vụ chính là:
+
+| Tool | Input | Output | Tác vụ thật |
+|------|-------|--------|-------------|
+| `get_current_weather(city)` | `city: str` | Chuỗi thời tiết v1 | Gọi `current.json` của WeatherAPI |
+| `get_forecast(city, days=3)` | `city: str`, `days: int` | Dự báo 1–3 ngày | Gọi `forecast.json` của WeatherAPI |
+
+Phần versioning bổ sung `get_current_weather_v2(city, units="celsius")`; đây là
+phiên bản mới của tool đầu tiên chứ không phải một use case hard-code khác. Tool
+`health_check()` chỉ là tiện ích vận hành server.
+
 ## Architecture
 
 ```
@@ -23,7 +49,7 @@ A weather agent built with Google ADK that connects to an MCP server via Streama
 The same server also exposes `server://info`, which publishes the server version,
 capabilities, and the migration path from the deprecated v1 tool to v2.
 
-## Assignment mapping (Easy → Medium → Hard)
+## Đối chiếu yêu cầu (Dễ → Trung bình → Khó)
 
 This lab evolves one real Weather MCP Server instead of using unrelated demos:
 
@@ -78,6 +104,27 @@ Use the weather-personal MCP tools to get the current weather and
 
 The local Claude configuration contains the bearer header, while `.env` and API
 keys remain ignored by Git.
+
+> Claude Code CLI có thể kiểm tra server và liệt kê trạng thái kết nối mà chưa
+> đăng nhập. Để model Claude tự chọn và gọi tool, tài khoản cần có quyền Claude
+> Code (Pro/Max, Team/Enterprise hoặc Anthropic API có billing). Tài khoản Claude
+> Free không cung cấp lượt gọi model trong CLI.
+
+## Kết quả kiểm thử
+
+Chạy `secure_weather_client.py` đã xác nhận:
+
+```text
+Missing token: HTTP 401
+Invalid token: HTTP 401
+Authorized: weather-personal v2.0.0 (streamable-http)
+Legacy v1 client: OK
+Modern client selected get_current_weather_v2: API v2.0 OK
+All secure Weather MCP checks passed.
+```
+
+Google ADK cũng đã kết nối bằng Bearer token, gọi
+`get_current_weather_v2(city="Hanoi", units="celsius")` và trả về dữ liệu thật.
 
 ## ADK làm gì trong Lab này?
 
@@ -148,5 +195,5 @@ Open http://localhost:8000 in your browser, select `weather_agent`, and ask abou
 | `WEATHERAPI_KEY` | mcp-server | API key from weatherapi.com |
 | `GOOGLE_API_KEY` | mcp-client/.env | Gemini API key |
 | `PORT` | mcp-server (env) | Override server port (default: 8085) |
-| `MCP_AUTH_TOKEN` | server + clients | Bearer token (default: `dev-token-abc123`) |
+| `MCP_AUTH_TOKEN` | server + clients | Bearer token bắt buộc, lưu trong `.env` |
 | `MCP_SERVER_URL` | clients | Override MCP URL (default: `http://localhost:8085/mcp`) |

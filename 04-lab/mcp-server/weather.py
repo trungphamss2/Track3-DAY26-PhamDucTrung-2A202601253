@@ -3,6 +3,7 @@ import httpx
 import json
 import logging
 import os
+import secrets
 from datetime import datetime, timezone
 
 from mcp.server.auth.provider import AccessToken, TokenVerifier
@@ -11,14 +12,16 @@ from mcp.server.fastmcp import FastMCP
 
 port = int(os.getenv("PORT", 8085))
 SERVER_VERSION = "2.0.0"
-AUTH_TOKEN = os.getenv("MCP_AUTH_TOKEN", "dev-token-abc123")
+AUTH_TOKEN = os.getenv("MCP_AUTH_TOKEN")
+if not AUTH_TOKEN:
+    raise RuntimeError("MCP_AUTH_TOKEN is required. Set it in the root .env file.")
 
 
 class StaticTokenVerifier(TokenVerifier):
     """Verify the bearer token used by Claude Code and other MCP clients."""
 
     async def verify_token(self, token: str) -> AccessToken | None:
-        if token != AUTH_TOKEN:
+        if not secrets.compare_digest(token, AUTH_TOKEN):
             return None
         return AccessToken(
             token=token,
